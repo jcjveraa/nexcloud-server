@@ -50,62 +50,64 @@ $.fn.contactsMenu = function(shareWith, shareType, appendTo) {
 	appendTo.append(LIST)
 	const $list = appendTo.find('div.contactsmenu-popover')
 
-	$div.click(function() {
-		if (!$list.hasClass('hidden')) {
-			$list.addClass('hidden')
-			$list.hide()
-			return
-		}
+	$div.on('click keydown', function(event) {
+		if (event.type === 'click' || (event.type === 'keydown' && event.key === 'Enter')) {
+			if (!$list.hasClass('hidden')) {
+				$list.addClass('hidden')
+				$list.hide()
+				return
+			}
 
-		$list.removeClass('hidden')
-		$list.show()
+			$list.removeClass('hidden')
+			$list.show()
 
-		if ($list.hasClass('loaded')) {
-			return
-		}
+			if ($list.hasClass('loaded')) {
+				return
+			}
 
-		$list.addClass('loaded')
-		$.ajax(OC.generateUrl('/contactsmenu/findOne'), {
-			method: 'POST',
-			data: {
-				shareType,
-				shareWith,
-			},
-		}).then(function(data) {
-			$list.find('ul').find('li').addClass('hidden')
+			$list.addClass('loaded')
+			$.ajax(OC.generateUrl('/contactsmenu/findOne'), {
+				method: 'POST',
+				data: {
+					shareType,
+					shareWith,
+				},
+			}).then(function(data) {
+				$list.find('ul').find('li').addClass('hidden')
 
-			let actions
-			if (!data.topAction) {
-				actions = [{
+				let actions
+				if (!data.topAction) {
+					actions = [{
+						hyperlink: '#',
+						title: t('core', 'No action available'),
+					}]
+				} else {
+					actions = [data.topAction].concat(data.actions)
+				}
+
+				actions.forEach(function(action) {
+					$list.find('ul').append(entryTemplate(action))
+				})
+
+				$div.trigger('load')
+			}, function(jqXHR) {
+				$list.find('ul').find('li').addClass('hidden')
+
+				let title
+				if (jqXHR.status === 404) {
+					title = t('core', 'No action available')
+				} else {
+					title = t('core', 'Error fetching contact actions')
+				}
+
+				$list.find('ul').append(entryTemplate({
 					hyperlink: '#',
-					title: t('core', 'No action available'),
-				}]
-			} else {
-				actions = [data.topAction].concat(data.actions)
-			}
+					title,
+				}))
 
-			actions.forEach(function(action) {
-				$list.find('ul').append(entryTemplate(action))
+				$div.trigger('loaderror', jqXHR)
 			})
-
-			$div.trigger('load')
-		}, function(jqXHR) {
-			$list.find('ul').find('li').addClass('hidden')
-
-			let title
-			if (jqXHR.status === 404) {
-				title = t('core', 'No action available')
-			} else {
-				title = t('core', 'Error fetching contact actions')
-			}
-
-			$list.find('ul').append(entryTemplate({
-				hyperlink: '#',
-				title,
-			}))
-
-			$div.trigger('loaderror', jqXHR)
-		})
+		}
 	})
 
 	$(document).click(function(event) {

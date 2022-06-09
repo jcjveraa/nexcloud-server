@@ -249,11 +249,11 @@ class ImageManager {
 	 */
 	private function getResizedImagePathIfResizeIsSmaller(string $originalTmpFile): string
 	{
-		// Optimize the image since some people may upload images that will be
-		// either to big or are not progressive rendering.
+			// Optimize the image since some people may upload images that will be
+			// either to big or are not progressive rendering.
 		$newImage = @imagecreatefromstring(file_get_contents($originalTmpFile));
 
-		// Preserve transparency
+			// Preserve transparency
 		imagesavealpha($newImage, true);
 		imagealphablending($newImage, true);
 

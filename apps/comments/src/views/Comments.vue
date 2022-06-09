@@ -79,6 +79,7 @@ import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 
 import Comment from '../components/Comment'
 import getComments, { DEFAULT_LIMIT } from '../services/GetComments'
+import { markCommentsAsRead } from '../services/ReadComments'
 import cancelableRequest from '../utils/cancelableRequest'
 
 Vue.use(VTooltip)
@@ -203,6 +204,8 @@ export default {
 
 				// Insert results
 				this.comments.push(...comments)
+
+				await markCommentsAsRead(this.commentsType, this.ressourceId, new Date())
 
 				// Increase offset for next fetch
 				this.offset += DEFAULT_LIMIT

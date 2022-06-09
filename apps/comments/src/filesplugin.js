@@ -108,6 +108,7 @@
 				render(actionSpec, isDefault, context) {
 					const $file = context.$file
 					const unreadComments = $file.data('comments-unread')
+					// TODO subscribe to comments read event
 					if (unreadComments) {
 						const $actionLink = $(self._formatCommentCount(unreadComments))
 						context.$file.find('a.name>span.fileactions').append($actionLink)
